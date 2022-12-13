@@ -5,6 +5,7 @@ app.get('/', (req,res) => {
     res.json('hello world')
 })
 
-app.listen(8000, () => {
-    console.log(`server running on port 8000`)
+const PORT = process.env.PORT || 8000
+app.listen(PORT, () => {
+    console.log(`server running on port ${PORT} `)
 })
