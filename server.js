@@ -1,15 +1,24 @@
 const express = require('express')
+const cors = require('cors')
 const app = express()
 
 let parks = {
-    "parkName": "Point Farms",
-    "location": "Goderich",
-    "region": "Southerm",
-    "phoneNumber": "519-543-9432"
+    "point farms": {
+        "name": "Point Farms",
+        "location": "Goderich",
+        "address": "82491 Bluewater Highway R.R.3",
+        "region": "Southwest & Central",
+        "size": "307.57 ha",
+        "yearEstablished": "1970",
+        "phoneNumber": "(519) 524-7124"
+    }
 }
 
-app.get('/', (req,res) => {
-    res.json(parks)
+app.use(cors())
+
+app.get('/api/:park', (req,res) => {
+    const parkName = req.params.park.toLowerCase()
+    res.json(parks[parkName])
 })
 
 const PORT = process.env.PORT || 8000
