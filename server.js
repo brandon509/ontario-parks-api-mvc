@@ -2,8 +2,8 @@ const express = require('express')
 const cors = require('cors')
 const app = express()
 
-let parks = {
-    "point farms": {
+let parks = [
+        {
         "name": "Point Farms",
         "location": "Goderich",
         "address": "82491 Bluewater Highway R.R.3",
@@ -11,14 +11,44 @@ let parks = {
         "size": "307.57 ha",
         "yearEstablished": "1970",
         "phoneNumber": "(519) 524-7124"
+    },
+    {
+        "name": "Arrowhead",
+        "location": "Huntsville",
+        "address": "451 Arrowhead Park Rd.",
+        "region": "Near North",
+        "size": "1237.00 ha",
+        "yearEstablished": "1971",
+        "phoneNumber": "705-789-5105"
     }
-}
+    ]   
 
 app.use(cors())
 
-app.get('/api/:park', (req,res) => {
+app.get('/api/all', (req,res) => {
+    res.json(parks)
+})
+
+app.get('/api/region/:region',(req,res) => {
+    const region = req.params.region.toLowerCase()
+    const oneRegion = parks.filter(x => x.region.toLowerCase() == region)
+    if(oneRegion.length > 0){
+        res.json(oneRegion)   
+    }
+    else{
+        res.status(404).end()
+    }
+})
+
+app.get('/api/name/:park', (req,res) => {
     const parkName = req.params.park.toLowerCase()
-    res.json(parks[parkName])
+    const parkInfo = parks.find(x => x.name.toLowerCase() == parkName)
+    if(parkInfo){
+        res.json(parkInfo)
+    }
+    else{
+        res.status(404).end()
+    }
 })
 
 const PORT = process.env.PORT || 8000
