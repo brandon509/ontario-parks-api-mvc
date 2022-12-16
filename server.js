@@ -32,11 +32,11 @@ app.use(morgan('combined', {stream: logFile}))
 app.use(cors())
 
 
-app.get('/api/all', (req,res) => {
+app.get('/api/parks/all', (req,res) => {
     res.json(parks)
 })
 
-app.get('/api/region/:region',(req,res) => {
+app.get('/api/parks/region/:region',(req,res) => {
     const region = req.params.region.toLowerCase()
     const oneRegion = parks.filter(x => x.region.toLowerCase() == region)
     if(oneRegion.length > 0){
@@ -47,7 +47,7 @@ app.get('/api/region/:region',(req,res) => {
     }
 })
 
-app.get('/api/name/:park', (req,res) => {
+app.get('/api/parks/name/:park',(req,res) => {
     const parkName = req.params.park.toLowerCase()
     const parkInfo = parks.find(x => x.name.toLowerCase() == parkName)
     if(parkInfo){
