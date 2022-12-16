@@ -43,7 +43,7 @@ app.get('/api/parks/region/:region',(req,res) => {
         res.json(oneRegion)   
     }
     else{
-        res.status(404).end()
+        res.status(404).json({error: 'region does not exist'})
     }
 })
 
@@ -54,7 +54,7 @@ app.get('/api/parks/name/:park',(req,res) => {
         res.json(parkInfo)
     }
     else{
-        res.status(404).end()
+        res.status(404).json({error: 'park does not exist'})
     }
 })
 
