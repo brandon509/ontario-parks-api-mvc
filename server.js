@@ -7,27 +7,6 @@ const path = require('path')
 const MongoClient = require('mongodb').MongoClient
 const app = express()
 
-let parks = [
-        {
-        "name": "Point Farms",
-        "location": "Goderich",
-        "address": "82491 Bluewater Highway R.R.3",
-        "region": "Southwest & Central",
-        "size": "307.57 ha",
-        "yearEstablished": "1970",
-        "phoneNumber": "(519) 524-7124"
-    },
-    {
-        "name": "Arrowhead",
-        "location": "Huntsville",
-        "address": "451 Arrowhead Park Rd.",
-        "region": "Near North",
-        "size": "1237.00 ha",
-        "yearEstablished": "1971",
-        "phoneNumber": "705-789-5105"
-    }
-    ]
-
 const connString = process.env.CONNECTION_STRING
 
 MongoClient.connect(connString)
@@ -49,29 +28,39 @@ MongoClient.connect(connString)
         //======================================
 
         app.get('/api/parks/all', (req,res) => {
-            res.json(parks)
+            dbCollection.find().toArray()
+            .then(result => {
+                res.json(result)
+            })
+            .catch(err => console.error(err))
         })
 
         app.get('/api/parks/region/:region',(req,res) => {
             const region = req.params.region.toLowerCase()
-            const oneRegion = parks.filter(x => x.region.toLowerCase() == region)
-            if(oneRegion.length > 0){
-                res.json(oneRegion)   
-            }
-            else{
-                res.status(404).json({error: 'region does not exist'})
-            }
+            dbCollection.find({region: `${region}`}).toArray()
+                .then(result => {
+                    if(result.length != 0){
+                        res.json(result) 
+                    }
+                    else{
+                        res.status(404).json({error: `region ${region} does not exist`}) 
+                    }
+                })
+                .catch(err => console.error(err))
         })
 
         app.get('/api/parks/name/:park',(req,res) => {
             const parkName = req.params.park.toLowerCase()
-            const parkInfo = parks.find(x => x.name.toLowerCase() == parkName)
-            if(parkInfo){
-                res.json(parkInfo)
-            }
-            else{
-                res.status(404).json({error: 'park does not exist'})
-            }
+            dbCollection.findOne({name: `${parkName}`})
+                .then(result => {
+                    if(result){
+                        res.json(result) 
+                    }
+                    else{
+                        res.status(404).json({error: `park ${parkName} does not exist`}) 
+                    }
+                })
+                .catch(err => console.error(err))
         })
 
         app.post('/api/new', (req,res) => {
@@ -96,3 +85,12 @@ MongoClient.connect(connString)
 
     })
     .catch(err => console.error(err))
+
+
+
+    //next steps
+    //add in all data
+    //finish api best practices
+    //security/api tokens
+    //logging
+    //email notification?
