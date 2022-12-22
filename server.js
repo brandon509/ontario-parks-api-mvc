@@ -5,7 +5,10 @@ const morgan = require('morgan')
 const fs = require('fs')
 const path = require('path')
 const MongoClient = require('mongodb').MongoClient
+const apicache = require('apicache')
+
 const app = express()
+let cache = apicache.middleware
 
 const connString = process.env.CONNECTION_STRING
 
@@ -22,6 +25,7 @@ MongoClient.connect(connString)
         app.use(express.json())
         app.use(morgan('combined', {stream: logFile}))
         app.use(cors())
+        app.use(cache('5 minutes'))
 
         //======================================
         // Routes
@@ -94,3 +98,4 @@ MongoClient.connect(connString)
     //security/api tokens
     //logging
     //email notification?
+    //cache
