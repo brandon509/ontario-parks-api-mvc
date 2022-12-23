@@ -14,6 +14,7 @@ const connString = process.env.CONNECTION_STRING
 
 MongoClient.connect(connString)
     .then(client => {
+        console.log('database connected successfully...')
         const db = client.db('ontario-provincial-parks')
         const dbCollection = db.collection('ontario-provincial-parks')
         const logFile = fs.createWriteStream(path.join(__dirname, "server.log"), {flags: 'a'})
@@ -83,12 +84,16 @@ MongoClient.connect(connString)
 
         const PORT = process.env.PORT || 8000
         app.listen(PORT, () => {
-            console.log(`server running on port ${PORT} `)
+            console.log(`server running on port ${PORT}...`)
         })
 
 
     })
-    .catch(err => console.error(err))
+    .catch(err => {
+        console.log('database connection failed, exiting now...')
+        console.error(err)
+        process.exit(1)
+    })
 
 
 
