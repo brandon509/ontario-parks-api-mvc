@@ -8,6 +8,7 @@ const MongoClient = require('mongodb').MongoClient
 const apicache = require('apicache')
 const mongoose = require('mongoose')
 const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
 
 const app = express()
 let cache = apicache.middleware
@@ -30,19 +31,24 @@ mongoose.connect(connString)
 
         app.use(express.json())
 
-        app.post('/api/new-user', (req,res) => {
-            const {firstName, lastName, email, password} = req.body
-            const encryptedPassword = bcrypt.hashSync(password, 10)
-            User.create({
-                firstName,
-                lastName,
-                email,
-                password: encryptedPassword
-            })
-                .then(result => {
-                    res.json('your account has been created. once your account is approved you can begin pushing updates to the databsae')
+        app.post('/api/register', async (req,res) => {
+
+            try{
+                const {firstName, lastName, email, password} = req.body
+                const encryptedPassword = await bcrypt.hashSync(password, 10)
+                const user = await User.create({
+                    firstName,
+                    lastName,
+                    email,
+                    password: encryptedPassword
                 })
-                .catch(err => {
+                const token = jwt.sign({userID: user._id, email}, process.env.TOKEN_KEY, {expiresIn: '2h'})
+                user.token = token
+                
+                res.status(201).json(user)
+            }
+                
+                catch (err){
                     if(err.code == 11000){
                         res.status(400).json(`an account already exists with the email ${err.keyValue.email}. please log in instead`)
                     }
@@ -50,9 +56,34 @@ mongoose.connect(connString)
                         res.status(400).json(`please ensure all fields have been populated`)
                     }
                     else{
-                        res.status(400).json('unknown error occured')
+                        res.status(400).json(err)
                     }
-                })
+                }
+        })
+
+        app.post('/api/login', async (req,res) => {
+            try{
+                const {email,password} = req.body
+                if(!email || !password){
+                    res.status(400).json('missing information. email and password required')
+                }
+
+                const user = await User.findOne({email})
+
+                if(user && await bcrypt.compare(password, user.password)){
+                    const token = jwt.sign({userID: user._id, email}, `${process.env.TOKEN_KEY}`, {expiresIn: '2h'})
+                    user.token = token
+                    res.status(201).json(user)
+                }
+
+                res.status(400).json('Invalid Credentials!')
+            }
+
+            catch(err){
+                console.log(err)
+            }
+
+
         })
 
         const PORT = process.env.PORT || 8000
