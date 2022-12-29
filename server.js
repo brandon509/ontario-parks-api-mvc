@@ -19,7 +19,7 @@ const connString = process.env.CONNECTION_STRING
 
 mongoose.connect(connString)
     .then(client => {
-        const schema = new mongoose.Schema({
+        const userSchema = new mongoose.Schema({
             firstName: {type: String, required: true},
             lastName: {type: String, required: true},
             email: {type: String, requried: true, unique: true, lowercase: true},
@@ -27,9 +27,35 @@ mongoose.connect(connString)
             enabled: {type: Boolean, default: false},
             token: {type: String}
         })
-        const User = mongoose.model('users', schema)
+        const User = mongoose.model('adminUsers', userSchema)
+
+        const parkSchema = new mongoose.Schema({
+            name: {type: String, required: true, lowercase: true, unique: true},
+            location: {type: String, required: true, lowercase: true},
+            address: {type: String, required: true, lowercase: true},
+            region: {type: String, required: true, lowercase: true},
+            size: {type: String, required: true, lowercase: true},
+            yearEstablished: {type: String, required: true, lowercase: true},
+            phoneNumber: {type: String, required: true, lowercase: true}
+        })
+        const Park = mongoose.model('parks', parkSchema)
 
         app.use(express.json())
+
+        const verifyToken = (req, res, next) => {
+            const token = req.body.token || req.query.token || req.headers['x-access-token']
+            if(!token){
+                res.json('A token is required for authentication')
+            }
+            try{
+                const decoded = jwt.verify(token, process.env.TOKEN_KEY)
+                req.user = decoded
+            }
+            catch(err){
+                return res.json('Invalid token')
+            }
+            return next()
+        }
 
         app.post('/api/register', async (req,res) => {
 
@@ -42,8 +68,8 @@ mongoose.connect(connString)
                     email,
                     password: encryptedPassword
                 })
-                const token = jwt.sign({userID: user._id, email}, process.env.TOKEN_KEY, {expiresIn: '2h'})
-                user.token = token
+                //const token = jwt.sign({userID: user._id, email}, process.env.TOKEN_KEY, {expiresIn: '2h'})
+                //user.token = token
                 
                 res.status(201).json(user)
             }
@@ -70,6 +96,10 @@ mongoose.connect(connString)
 
                 const user = await User.findOne({email})
 
+                if(!user.enabled){
+                    res.json('Please wait for your account to be verified')
+                }
+
                 if(user && await bcrypt.compare(password, user.password)){
                     const token = jwt.sign({userID: user._id, email}, `${process.env.TOKEN_KEY}`, {expiresIn: '2h'})
                     user.token = token
@@ -84,6 +114,26 @@ mongoose.connect(connString)
             }
 
 
+        })
+
+        app.post('/api/new', verifyToken, async (req,res) => {
+            try{
+                const {name, location, address, region, size, yearEstablished, phoneNumber} = req.body
+                let park = await Park.create({
+                    name,
+                    location,
+                    address,
+                    region,
+                    size,
+                    yearEstablished,
+                    phoneNumber 
+                })
+            res.json('It worked')
+            }
+
+            catch(err){
+                console.log(err)
+            }
         })
 
         const PORT = process.env.PORT || 8000
