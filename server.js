@@ -18,99 +18,97 @@ let cache = apicache.middleware
 mongoose.set('strictQuery', false)
 
 const connString = process.env.CONNECTION_STRING
+const PORT = process.env.PORT || 8000
 
-mongoose.connect(connString)
-    .then(client => {
-        app.use(express.json())
+main().catch(err => {
+    console.log('database connection failed, exiting now...')
+    process.exit(1)
+})
 
-        app.post('/api/register', async (req,res) => {
+async function main(){
+    await mongoose.connect(connString)
 
-            try{
-                const {firstName, lastName, email, password} = req.body
-                const encryptedPassword = await bcrypt.hashSync(password, 10)
-                const user = await data.User.create({
-                    firstName,
-                    lastName,
-                    email,
-                    password: encryptedPassword
-                })
+    app.use(express.json())
+
+    app.post('/api/register', async (req,res) => {
+        try{
+            const {firstName, lastName, email, password} = req.body
+            const encryptedPassword = await bcrypt.hashSync(password, 10)
+            const user = await data.User.create({
+                firstName,
+                lastName,
+                email,
+                password: encryptedPassword
+            })
                 
+            res.status(201).json(user)
+        }
+                
+        catch (err){
+            if(err.code == 11000){
+                res.status(400).json(`an account already exists with the email ${err.keyValue.email}. please log in instead`)
+            }
+            else if(err.name == 'ValidationError'){
+                res.status(400).json(`please ensure all fields have been populated`)
+            }
+            else{
+                res.status(400).json(err)
+                }
+        }
+    })
+
+    app.post('/api/login', async (req,res) => {
+        try{
+            const {email,password} = req.body
+            if(!email || !password){
+                res.status(400).json('missing information. email and password required')
+            }
+
+            const user = await data.User.findOne({email})
+
+            if(!user.enabled){
+                res.json('Please wait for your account to be verified')
+            }
+
+            if(user && await bcrypt.compare(password, user.password)){
+                const token = jwt.sign({userID: user._id, email}, `${process.env.TOKEN_KEY}`, {expiresIn: '2h'})
+                user.token = token
                 res.status(201).json(user)
             }
-                
-                catch (err){
-                    if(err.code == 11000){
-                        res.status(400).json(`an account already exists with the email ${err.keyValue.email}. please log in instead`)
-                    }
-                    else if(err.name == 'ValidationError'){
-                        res.status(400).json(`please ensure all fields have been populated`)
-                    }
-                    else{
-                        res.status(400).json(err)
-                    }
-                }
-        })
 
-        app.post('/api/login', async (req,res) => {
-            try{
-                const {email,password} = req.body
-                if(!email || !password){
-                    res.status(400).json('missing information. email and password required')
-                }
+            res.status(401).json('Invalid Credentials!')
+        }
 
-                const user = await data.User.findOne({email})
-
-                if(!user.enabled){
-                    res.json('Please wait for your account to be verified')
-                }
-
-                if(user && await bcrypt.compare(password, user.password)){
-                    const token = jwt.sign({userID: user._id, email}, `${process.env.TOKEN_KEY}`, {expiresIn: '2h'})
-                    user.token = token
-                    res.status(201).json(user)
-                }
-
-                res.status(400).json('Invalid Credentials!')
-            }
-
-            catch(err){
-                console.log(err)
-            }
-
-
-        })
-
-        app.post('/api/new', auth, async (req,res) => {
-            try{
-                const {name, location, address, region, size, yearEstablished, phoneNumber} = req.body
-                let park = await data.Park.create({
-                    name,
-                    location,
-                    address,
-                    region,
-                    size,
-                    yearEstablished,
-                    phoneNumber 
-                })
-            res.json('It worked')
-            }
-
-            catch(err){
-                console.log(err)
-            }
-        })
-
-        const PORT = process.env.PORT || 8000
-        app.listen(PORT, () => {
-            console.log(`server running on port ${PORT}...`)
-        })
+        catch(err){
+            console.log(err)
+        }
     })
 
-    .catch(err => {
-        console.log('database connection failed, exiting now...')
-        console.error(err)
-        process.exit(1)
+    app.post('/api/new', auth, async (req,res) => {
+        try{
+            const {name, location, address, region, size, yearEstablished, phoneNumber} = req.body
+            let park = await data.Park.create({
+                name,
+                location,
+                address,
+                region,
+                size,
+                yearEstablished,
+                phoneNumber 
+            })
+        res.status(201).json(park)
+        }
+
+        catch(err){
+            res.status(400).json(err)
+            console.err(`unknown error occurred: ${err}`)
+        }
     })
+
+    app.listen(PORT, () => {
+        console.log(`server running on port ${PORT}...`)
+    })
+}
 
 
 
