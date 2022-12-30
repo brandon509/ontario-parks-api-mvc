@@ -9,6 +9,8 @@ const apicache = require('apicache')
 const mongoose = require('mongoose')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const data = require('./data.js')
+const auth = require('./authentication')
 
 const app = express()
 let cache = apicache.middleware
@@ -19,57 +21,19 @@ const connString = process.env.CONNECTION_STRING
 
 mongoose.connect(connString)
     .then(client => {
-        const userSchema = new mongoose.Schema({
-            firstName: {type: String, required: true},
-            lastName: {type: String, required: true},
-            email: {type: String, requried: true, unique: true, lowercase: true},
-            password: {type: String, required: true},
-            enabled: {type: Boolean, default: false},
-            token: {type: String}
-        })
-        const User = mongoose.model('adminUsers', userSchema)
-
-        const parkSchema = new mongoose.Schema({
-            name: {type: String, required: true, lowercase: true, unique: true},
-            location: {type: String, required: true, lowercase: true},
-            address: {type: String, required: true, lowercase: true},
-            region: {type: String, required: true, lowercase: true},
-            size: {type: String, required: true, lowercase: true},
-            yearEstablished: {type: String, required: true, lowercase: true},
-            phoneNumber: {type: String, required: true, lowercase: true}
-        })
-        const Park = mongoose.model('parks', parkSchema)
-
         app.use(express.json())
-
-        const verifyToken = (req, res, next) => {
-            const token = req.body.token || req.query.token || req.headers['x-access-token']
-            if(!token){
-                res.json('A token is required for authentication')
-            }
-            try{
-                const decoded = jwt.verify(token, process.env.TOKEN_KEY)
-                req.user = decoded
-            }
-            catch(err){
-                return res.json('Invalid token')
-            }
-            return next()
-        }
 
         app.post('/api/register', async (req,res) => {
 
             try{
                 const {firstName, lastName, email, password} = req.body
                 const encryptedPassword = await bcrypt.hashSync(password, 10)
-                const user = await User.create({
+                const user = await data.User.create({
                     firstName,
                     lastName,
                     email,
                     password: encryptedPassword
                 })
-                //const token = jwt.sign({userID: user._id, email}, process.env.TOKEN_KEY, {expiresIn: '2h'})
-                //user.token = token
                 
                 res.status(201).json(user)
             }
@@ -94,7 +58,7 @@ mongoose.connect(connString)
                     res.status(400).json('missing information. email and password required')
                 }
 
-                const user = await User.findOne({email})
+                const user = await data.User.findOne({email})
 
                 if(!user.enabled){
                     res.json('Please wait for your account to be verified')
@@ -116,10 +80,10 @@ mongoose.connect(connString)
 
         })
 
-        app.post('/api/new', verifyToken, async (req,res) => {
+        app.post('/api/new', auth, async (req,res) => {
             try{
                 const {name, location, address, region, size, yearEstablished, phoneNumber} = req.body
-                let park = await Park.create({
+                let park = await data.Park.create({
                     name,
                     location,
                     address,
