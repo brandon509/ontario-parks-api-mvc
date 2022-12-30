@@ -27,12 +27,21 @@ main().catch(err => {
 
 async function main(){
     await mongoose.connect(connString)
-
+    
     app.use(express.json())
 
     app.post('/api/register', async (req,res) => {
         try{
             const {firstName, lastName, email, password} = req.body
+            if(!firstName || !lastName || !email || !password){
+                res.status(400).json('please complete all fields')
+            }
+
+            const userCheck = await data.User.findOne({email})
+            if(userCheck){
+                res.status(400).json(`${email} is already associated with an account, please login to continue`)
+            }
+
             const encryptedPassword = await bcrypt.hashSync(password, 10)
             const user = await data.User.create({
                 firstName,
@@ -44,16 +53,8 @@ async function main(){
             res.status(201).json(user)
         }
                 
-        catch (err){
-            if(err.code == 11000){
-                res.status(400).json(`an account already exists with the email ${err.keyValue.email}. please log in instead`)
-            }
-            else if(err.name == 'ValidationError'){
-                res.status(400).json(`please ensure all fields have been populated`)
-            }
-            else{
-                res.status(400).json(err)
-                }
+        catch(err){
+            console.log(err)  
         }
     })
 
@@ -61,13 +62,13 @@ async function main(){
         try{
             const {email,password} = req.body
             if(!email || !password){
-                res.status(400).json('missing information. email and password required')
+                res.status(400).json('both email and password are required to login')
             }
 
             const user = await data.User.findOne({email})
 
             if(!user.enabled){
-                res.json('Please wait for your account to be verified')
+                res.json('please wait until your account has been verified')
             }
 
             if(user && await bcrypt.compare(password, user.password)){
@@ -76,7 +77,7 @@ async function main(){
                 res.status(201).json(user)
             }
 
-            res.status(401).json('Invalid Credentials!')
+            res.status(401).json('invalid Credentials')
         }
 
         catch(err){
@@ -87,7 +88,13 @@ async function main(){
     app.post('/api/new', auth, async (req,res) => {
         try{
             const {name, location, address, region, size, yearEstablished, phoneNumber} = req.body
-            let park = await data.Park.create({
+
+            const parkCheck = await data.Park.findOne({name})
+            if(parkCheck){
+                res.status(400).json(`${name} has already been added to the database`)
+            }
+
+            const park = await data.Park.create({
                 name,
                 location,
                 address,
@@ -96,12 +103,12 @@ async function main(){
                 yearEstablished,
                 phoneNumber 
             })
-        res.status(201).json(park)
+            
+            res.status(201).json(park)
         }
 
         catch(err){
-            res.status(400).json(err)
-            console.err(`unknown error occurred: ${err}`)
+            console.log(err)
         }
     })
 
