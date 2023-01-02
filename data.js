@@ -1,6 +1,12 @@
 const mongoose = require('mongoose')
 
 const userSchema = new mongoose.Schema({
+    firstName: {type: String, requried: true},
+    lastName: {type: String, required: true},
+    email: {type: String, required: true, unique: true, lowercase: true}
+})
+
+const adminSchema = new mongoose.Schema({
     firstName: {type: String, required: true},
     lastName: {type: String, required: true},
     email: {type: String, requried: true, unique: true, lowercase: true},
@@ -19,5 +25,6 @@ const parkSchema = new mongoose.Schema({
     phoneNumber: {type: String, required: true, lowercase: true}
 })
 
-module.exports.User = mongoose.model('admin-users', userSchema)
+module.exports.User = mongoose.model('general-users', userSchema)
+module.exports.Admin = mongoose.model('admin-users', adminSchema)
 module.exports.Park = mongoose.model('parks', parkSchema)

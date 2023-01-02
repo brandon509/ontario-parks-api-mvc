@@ -30,6 +30,86 @@ async function main(){
     
     app.use(express.json())
 
+    //======================================
+    // Routes
+    //======================================
+
+    app.get('/api/parks/all', async (req,res) =>{
+        try{
+            const allParks = await data.Park.find()
+            res.status(200).json(allParks)
+        }
+
+        catch(err){
+            console.log(err)
+        }
+    })
+
+    app.get('/api/parks/region/:region', async (req,res) => {
+        try{      
+            const region = req.params.region.toLowerCase()
+            const regionCheck = await data.Park.find({region})
+                        
+            if(regionCheck.length != 0){
+                res.status(200).json(regionCheck)
+            }
+            else{
+                res.status(404).json({error: `region ${region} does not exist`}) 
+            }
+        }
+
+        catch(err){
+            console.log(err)
+        }
+    })
+
+    app.get('/api/parks/name/:park', async (req,res) =>{
+        try{
+            const parkName = req.params.park.toLowerCase()
+            const park = await data.Park.findOne({name: parkName})
+
+            if(park){
+                res.status(200).json(park)
+            }
+            else{
+                res.status(404).json(`${parkName} does not exist in the db`)
+            }
+        }
+
+        catch(err){
+            console.log(err)
+        }
+    })
+
+    app.post('/api/signup', async (req,res) =>{
+        try{
+            const {firstName, lastName, email} = req.body
+            if(!firstName || !lastName || !email){
+                res.status(400).json('all fields are required')
+            }
+
+            const userCheck = await data.User.findOne({email})
+            if(userCheck){
+                res.status(400).json('there is already an account associated with the provided email')
+            }
+
+            const user = await data.User.create({
+                firstName,
+                lastName,
+                email
+            })
+
+            const token = jwt.sign({userID: user._id, email}, `${process.env.GENERAL_TOKEN_KEY}`)
+            user.token = token
+            res.status(200).json(user)
+
+        }
+
+        catch(err){
+            console.log(err)
+        }
+    })
+
     app.post('/api/register', async (req,res) => {
         try{
             const {firstName, lastName, email, password} = req.body
@@ -37,13 +117,13 @@ async function main(){
                 res.status(400).json('please complete all fields')
             }
 
-            const userCheck = await data.User.findOne({email})
+            const userCheck = await data.Admin.findOne({email})
             if(userCheck){
                 res.status(400).json(`${email} is already associated with an account, please login to continue`)
             }
 
             const encryptedPassword = await bcrypt.hashSync(password, 10)
-            const user = await data.User.create({
+            const user = await data.Admin.create({
                 firstName,
                 lastName,
                 email,
@@ -65,7 +145,7 @@ async function main(){
                 res.status(400).json('both email and password are required to login')
             }
 
-            const user = await data.User.findOne({email})
+            const user = await data.Admin.findOne({email})
 
             if(!user.enabled){
                 res.json('please wait until your account has been verified')
@@ -85,7 +165,7 @@ async function main(){
         }
     })
 
-    app.post('/api/new', auth, async (req,res) => {
+    app.post('/api/parks/new', auth, async (req,res) => {
         try{
             const {name, location, address, region, size, yearEstablished, phoneNumber} = req.body
 
@@ -103,7 +183,7 @@ async function main(){
                 yearEstablished,
                 phoneNumber 
             })
-            
+
             res.status(201).json(park)
         }
 
@@ -135,9 +215,9 @@ async function main(){
 //         app.use(cors())
 //         app.use(cache('5 minutes'))
 
-//         //======================================
-//         // Routes
-//         //======================================
+        //======================================
+        // Routes
+        //======================================
 
 //         app.get('/api/parks/all', (req,res) => {
 //             dbCollection.find().toArray()
