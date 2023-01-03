@@ -34,7 +34,7 @@ async function main(){
     // Routes
     //======================================
 
-    app.get('/api/parks/all', async (req,res) =>{
+    app.get('/api/parks/all', auth, async (req,res) =>{
         try{
             const allParks = await data.Park.find()
             res.status(200).json(allParks)
@@ -45,7 +45,7 @@ async function main(){
         }
     })
 
-    app.get('/api/parks/region/:region', async (req,res) => {
+    app.get('/api/parks/region/:region', auth, async (req,res) => {
         try{      
             const region = req.params.region.toLowerCase()
             const regionCheck = await data.Park.find({region})
@@ -63,7 +63,7 @@ async function main(){
         }
     })
 
-    app.get('/api/parks/name/:park', async (req,res) =>{
+    app.get('/api/parks/name/:park', auth, async (req,res) =>{
         try{
             const parkName = req.params.park.toLowerCase()
             const park = await data.Park.findOne({name: parkName})
@@ -99,7 +99,7 @@ async function main(){
                 email
             })
 
-            const token = jwt.sign({userID: user._id, email}, `${process.env.GENERAL_TOKEN_KEY}`)
+            const token = jwt.sign({userID: user._id, email, enabled: user.enabled}, `${process.env.TOKEN_KEY}`)
             user.token = token
             res.status(200).json(user)
 
@@ -147,17 +147,13 @@ async function main(){
 
             const user = await data.Admin.findOne({email})
 
-            if(!user.enabled){
-                res.json('please wait until your account has been verified')
-            }
-
             if(user && await bcrypt.compare(password, user.password)){
-                const token = jwt.sign({userID: user._id, email}, `${process.env.TOKEN_KEY}`, {expiresIn: '2h'})
+                const token = jwt.sign({userID: user._id, email, enabled: user.enabled}, `${process.env.TOKEN_KEY}`, {expiresIn: '2h'})
                 user.token = token
                 res.status(201).json(user)
             }
 
-            res.status(401).json('invalid Credentials')
+            res.status(401).json('invalid credentials')
         }
 
         catch(err){
@@ -197,7 +193,10 @@ async function main(){
     })
 }
 
-
+//next
+//make so users cant have true
+//email token to general user
+//route to make admins true
 
 // MongoClient.connect(connString)
 //     .then(client => {
