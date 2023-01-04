@@ -10,8 +10,9 @@ const mongoose = require('mongoose')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const data = require('./data.js')
-const auth = require('./authentication')
-const email = require('./email')
+const auth = require('./authentication.js')
+const emailSend = require('./email.js')
+
 
 const app = express()
 let cache = apicache.middleware
@@ -37,7 +38,7 @@ async function main(){
 
     app.get('/api/test', async (req,res) => {
         try{
-            email()
+            sendEmail()
             res.json('Worked')
         }
         catch(err){
@@ -112,6 +113,7 @@ async function main(){
 
             const token = jwt.sign({userID: user._id, email, enabled: user.enabled}, `${process.env.TOKEN_KEY}`)
             user.token = token
+            emailSend(token)
             res.status(200).json(user)
 
         }
