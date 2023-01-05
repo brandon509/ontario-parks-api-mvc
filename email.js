@@ -1,29 +1,30 @@
 const nodemailer = require('nodemailer')
 
-async function main(token){
+async function main(token, firstName, email){
     try{
-        let testAccount = await nodemailer.createTestAccount()
         let transporter = nodemailer.createTransport({
-        host: "smtp.ethereal.email",
-        post: 587,
-        secure: false,
+        service: process.env.NODEMAILER_SERVICE,
         auth: {
-            user: testAccount.user,
-            pass: testAccount.pass
+            user: process.env.NODEMAILER_USER,
+            pass: process.env.NODEMAILER_PASS
         }
     })
 
-    let info = await transporter.sendMail({
-        from: 'foo@example.com',
-        to: 'boo@example.com',
-        subject: 'Open this email for your token' ,
-        text: `Here is your token: ${token}` ,
-        html: "<h1>Did my test work</h1>"
+    let mailInfo = {
+        from: process.env.NODEMAILER_USER,
+        to: email,
+        subject: 'Ontario Provincial Parks Token' ,
+        html: `<p>Hi ${firstName} <br><br> Here is your token: ${token} <br><br> Please keep it safe <br><br> Thanks, <br> Your friendly neighbourhood dev</p>`
+    }
+
+    transporter.sendMail(mailInfo, (err, info) => {
+        if(err){
+            console.log(err)
+        }
+        else{
+            console.log(`email sent: ${info.response}`)
+        }
     })
-
-    //console.log('Message Sent: %s', info.messageId)
-
-    console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info))
     }
    
     catch(err){

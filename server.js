@@ -37,13 +37,8 @@ async function main(){
     //======================================
 
     app.get('/api/test', async (req,res) => {
-        try{
-            sendEmail()
-            res.json('Worked')
-        }
-        catch(err){
-            res.json('Fail')
-        }
+       emailSend()
+       res.json('Good')
     })
 
     app.get('/api/parks/all', auth, async (req,res) =>{
@@ -113,7 +108,7 @@ async function main(){
 
             const token = jwt.sign({userID: user._id, email, enabled: user.enabled}, `${process.env.TOKEN_KEY}`)
             user.token = token
-            emailSend(token)
+            emailSend(token,firstName,email)
             res.status(200).json(user)
 
         }
