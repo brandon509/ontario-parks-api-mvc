@@ -36,11 +36,6 @@ async function main(){
     // Routes
     //======================================
 
-    app.get('/api/test', async (req,res) => {
-       emailSend()
-       res.json('Good')
-    })
-
     app.get('/api/parks/all', auth, async (req,res) =>{
         try{
             const allParks = await data.Park.find()
@@ -108,7 +103,7 @@ async function main(){
 
             const token = jwt.sign({userID: user._id, email, enabled: user.enabled}, `${process.env.TOKEN_KEY}`)
             user.token = token
-            emailSend(token,firstName,email)
+            emailSend({token,firstName,email})
             res.status(200).json(user)
 
         }
@@ -137,7 +132,8 @@ async function main(){
                 email,
                 password: encryptedPassword
             })
-                
+
+            emailSend({firstName, lastName})    
             res.status(201).json(user)
         }
                 

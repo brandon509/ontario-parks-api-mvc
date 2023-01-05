@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer')
 
-async function main(token, firstName, email){
+async function main(object){
     try{
         let transporter = nodemailer.createTransport({
         service: process.env.NODEMAILER_SERVICE,
@@ -12,9 +12,9 @@ async function main(token, firstName, email){
 
     let mailInfo = {
         from: process.env.NODEMAILER_USER,
-        to: email,
-        subject: 'Ontario Provincial Parks Token' ,
-        html: `<p>Hi ${firstName} <br><br> Here is your token: ${token} <br><br> Please keep it safe <br><br> Thanks, <br> Your friendly neighbourhood dev</p>`
+        to: object.email || process.env.TO_EMAIL,
+        subject: 'Ontario Provincial Parks Token',
+        html: `<p>Hi ${object.firstName} <br><br> Here is your token: ${object.token} <br><br> Please keep it safe <br><br> Thanks, <br> Your friendly neighbourhood dev</p>`
     }
 
     transporter.sendMail(mailInfo, (err, info) => {
