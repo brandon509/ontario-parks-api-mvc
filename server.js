@@ -4,18 +4,16 @@ const cors = require('cors')
 const morgan = require('morgan')
 const fs = require('fs')
 const path = require('path')
-const MongoClient = require('mongodb').MongoClient
-const apicache = require('apicache')
 const mongoose = require('mongoose')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const data = require('./data.js')
 const auth = require('./authentication.js')
 const emailSend = require('./email.js')
+const { json } = require('express')
 
 
 const app = express()
-let cache = apicache.middleware
 
 mongoose.set('strictQuery', false)
 
@@ -101,9 +99,9 @@ async function main(){
                 email
             })
 
-            const token = jwt.sign({userID: user._id, email, enabled: user.enabled}, `${process.env.TOKEN_KEY}`)
+            const token = jwt.sign({userID: user._id, email, admin: user.admin}, `${process.env.TOKEN_KEY}`)
             user.token = token
-            emailSend({token,firstName,email})
+            emailSend({route: 'signup',token,firstName,email})
             res.status(200).json(user)
 
         }
@@ -133,7 +131,7 @@ async function main(){
                 password: encryptedPassword
             })
 
-            emailSend({firstName, lastName})    
+            emailSend({route: 'register',firstName, lastName})    
             res.status(201).json(user)
         }
                 
@@ -152,12 +150,26 @@ async function main(){
             const user = await data.Admin.findOne({email})
 
             if(user && await bcrypt.compare(password, user.password)){
-                const token = jwt.sign({userID: user._id, email, enabled: user.enabled}, `${process.env.TOKEN_KEY}`, {expiresIn: '2h'})
+                const token = jwt.sign({userID: user._id, email, admin: user.admin}, `${process.env.TOKEN_KEY}`, {expiresIn: '2h'})
                 user.token = token
                 res.status(201).json(user)
             }
 
             res.status(401).json('invalid credentials')
+        }
+
+        catch(err){
+            console.log(err)
+        }
+    })
+
+    app.put('/api/admin/verify', auth, async (req, res) => {
+        try{
+            let user = await data.Admin.find({email: req.body.email})
+            user.admin = true
+            console.log(user)
+            //user = await user.save()
+            //res.status(200).json(`${user.firstName} ${user.lastName} has been added as an admin`)
         }
 
         catch(err){
@@ -199,13 +211,8 @@ async function main(){
 
 //next
 //make so users cant have true
-//email token to general user
 //route to make admins true
 
     //next steps
     //add in all data
-    //finish api best practices
-    //security/api tokens
     //logging
-    //email notification?
-    //cache

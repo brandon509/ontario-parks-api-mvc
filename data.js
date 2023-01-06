@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
     lastName: {type: String, required: true},
     email: {type: String, required: true, unique: true, lowercase: true},
     uses: {type: Number, default: 0},
-    enabled: {type: Boolean, default: false},
+    admin: {type: Boolean, default: false},
     token: {type: String}
 })
 
@@ -14,7 +14,7 @@ const adminSchema = new mongoose.Schema({
     lastName: {type: String, required: true},
     email: {type: String, requried: true, unique: true, lowercase: true},
     password: {type: String, required: true},
-    enabled: {type: Boolean, default: false},
+    admin: {type: Boolean, default: false},
     token: {type: String}
 })
 

@@ -10,11 +10,24 @@ async function main(object){
         }
     })
 
-    let mailInfo = {
-        from: process.env.NODEMAILER_USER,
-        to: object.email || process.env.TO_EMAIL,
-        subject: 'Ontario Provincial Parks Token',
-        html: `<p>Hi ${object.firstName} <br><br> Here is your token: ${object.token} <br><br> Please keep it safe <br><br> Thanks, <br> Your friendly neighbourhood dev</p>`
+    let mailInfo = {}
+
+    if(object.route == 'signup'){
+        mailInfo = {
+            from: process.env.NODEMAILER_USER,
+            to: object.email,
+            subject: 'Ontario Provincial Parks Token',
+            html: `<p>Hi ${object.firstName} <br><br> Here is your token: ${object.token} <br><br> Please keep it safe <br><br> Thanks, <br> Your friendly neighbourhood dev</p>`
+        }
+    }
+
+    if(object.route == 'register'){
+        mailInfo = {
+            from: process.env.NODEMAILER_USER,
+            to: process.env.ADMIN_EMAIL,
+            subject: 'New User to Review',
+            html: `<p>Hi Brandon <br><br> The following user has requested admin access to the Ontario Provincial Parks api: <ul><li>${object.firstName} ${object.lastName}</li></ul><br> Please log on to the admin portal to approve or reject</p>`
+        }
     }
 
     transporter.sendMail(mailInfo, (err, info) => {

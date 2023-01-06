@@ -8,7 +8,7 @@ const verifyToken = (req, res, next) => {
     try{
         const decoded = jwt.verify(token, process.env.TOKEN_KEY)
         if(req.originalUrl == '/api/parks/new'){
-            if(!decoded.enabled){
+            if(!decoded.admin){
                 return res.status(401).json('Invalid token')
             }
         }
