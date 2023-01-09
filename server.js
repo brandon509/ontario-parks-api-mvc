@@ -10,7 +10,6 @@ const jwt = require('jsonwebtoken')
 const data = require('./data.js')
 const auth = require('./authentication.js')
 const emailSend = require('./email.js')
-const { json } = require('express')
 
 
 const app = express()
@@ -165,11 +164,15 @@ async function main(){
 
     app.put('/api/admin/verify', auth, async (req, res) => {
         try{
-            let user = await data.Admin.find({email: req.body.email})
-            user.admin = true
-            console.log(user)
-            //user = await user.save()
-            //res.status(200).json(`${user.firstName} ${user.lastName} has been added as an admin`)
+            let user = await data.Admin.findOne({email: req.body.email})
+            if(!user){
+                res.status(400).json('User does not exist')
+            }
+            else{
+                user.admin = true
+                user = await user.save()
+                res.status(200).json(`${user.firstName} ${user.lastName} has been added as an admin`)
+            }
         }
 
         catch(err){
@@ -208,10 +211,6 @@ async function main(){
         console.log(`server running on port ${PORT}...`)
     })
 }
-
-//next
-//make so users cant have true
-//route to make admins true
 
     //next steps
     //add in all data
