@@ -7,7 +7,6 @@ const jwt = require('jsonwebtoken')
 const data = require('./data.js')
 const auth = require('./authentication.js')
 const emailSend = require('./email.js')
-const winston = require('winston')
 
 
 const app = express()
@@ -26,14 +25,6 @@ async function main(){
     await mongoose.connect(connString)
     
     app.use(express.json())
-
-    const logger = winston.createLogger({
-        level: 'info',
-        format: winston.format.json(),
-        transports: [
-            new winston.transports.File({filename: 'server.log'})
-        ]
-    })
 
     //======================================
     // Routes
