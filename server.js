@@ -31,7 +31,7 @@ async function main(){
         level: 'info',
         format: winston.format.json(),
         transports: [
-            new winston.transports.File({filename: 'server.log', level: 'error'})
+            new winston.transports.File({filename: 'server.log'})
         ]
     })
 
@@ -42,6 +42,7 @@ async function main(){
     app.get('/api/parks/all', auth, async (req,res) =>{
         try{
             const allParks = await data.Park.find()
+            logger.info('It worked')
             res.status(200).json(allParks)
         }
 
