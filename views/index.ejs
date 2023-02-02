@@ -9,17 +9,19 @@
 
   <body>
     <h1>Administrator Approvals</h1>
-
-    <ul>
-        <% for(let i = 0; i<admins.length;i++){ %>
-            <li>
-                <span class="userName"> <%=`${admins[i].firstName} ${admins[i].lastName}, ${admins[i].email}`%> </span>
-                <i class="fa-regular fa-square-check"></i>
-                <i class="fa-solid fa-xmark"></i>
-            </li>
-        <%}%>
-    </ul>
-    
+    <% if(admins.length > 0){ %>
+        <ul>
+            <% for(let i = 0; i<admins.length;i++){ %>
+                <li>
+                    <span class="userName"> <%=`${admins[i].firstName} ${admins[i].lastName}, ${admins[i].email}`%> </span>
+                    <i class="fa-regular fa-square-check"></i>
+                    <i class="fa-solid fa-xmark"></i>
+                </li>
+            <%}%>
+        </ul>
+    <%} else{ %>
+        <p>No new admins waiting for approval at this time</p>
+    <%}%>
     <script src="https://kit.fontawesome.com/5b06072905.js" crossorigin="anonymous"></script>
     <script src="../main.js"></script>
   </body>

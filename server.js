@@ -35,7 +35,7 @@ async function main(){
 
     app.get('/admin/approval', async (req,res) => {
         try{
-            const admins = await data.Admin.find()
+            const admins = await data.Admin.find({admin: false})
             res.render('index.ejs', {admins: admins})
         }
         
@@ -173,7 +173,7 @@ async function main(){
         }
     })
 
-    app.put('/api/admin/verify', auth, async (req, res) => {
+    app.put('/api/admin/verify', async (req, res) => {
         try{
             let user = await data.Admin.findOne({email: req.body.email})
             if(!user){
@@ -184,6 +184,16 @@ async function main(){
                 user = await user.save()
                 res.status(200).json(`${user.firstName} ${user.lastName} has been added as an admin`)
             }
+        }
+
+        catch(err){
+            console.log(err)
+        }
+    })
+
+    app.delete('/api/admin/delete', async (req, res) => {
+        try{
+            const user = await data.Admin.deleteOne({email: req.body.email})
         }
 
         catch(err){
