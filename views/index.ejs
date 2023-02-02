@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>To Do</title>
+    <!-- <link rel="stylesheet" href="../normalize.css"> -->
+    <link rel="stylesheet" href="../styles.css">
+  </head>
+
+  <body>
+    <h1>Administrator Approvals</h1>
+
+    <ul>
+        <% for(let i = 0; i<admins.length;i++){ %>
+            <li>
+                <span class="userName"> <%=`${admins[i].firstName} ${admins[i].lastName}, ${admins[i].email}`%> </span>
+                <i class="fa-regular fa-square-check"></i>
+                <i class="fa-solid fa-xmark"></i>
+            </li>
+        <%}%>
+    </ul>
+    
+    <script src="https://kit.fontawesome.com/5b06072905.js" crossorigin="anonymous"></script>
+    <script src="../main.js"></script>
+  </body>
+</html>

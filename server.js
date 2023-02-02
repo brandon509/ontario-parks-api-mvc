@@ -25,15 +25,28 @@ async function main(){
     await mongoose.connect(connString)
     
     app.use(express.json())
+    app.set('view engine', 'ejs')
+    app.use(express.static('public'))
+    app.use(cors())
 
     //======================================
     // Routes
     //======================================
 
+    app.get('/admin/approval', async (req,res) => {
+        try{
+            const admins = await data.Admin.find()
+            res.render('index.ejs', {admins: admins})
+        }
+        
+        catch(err){
+            console.log(err)
+        }
+    })
+
     app.get('/api/parks/all', auth, async (req,res) =>{
         try{
             const allParks = await data.Park.find()
-            logger.info('It worked')
             res.status(200).json(allParks)
         }
 
@@ -213,3 +226,5 @@ async function main(){
     //next steps
     //add in all data
     //logging
+    //front end
+    //documentation
