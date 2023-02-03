@@ -33,7 +33,11 @@ async function main(){
     // Routes
     //======================================
 
-    app.get('/admin/approval', async (req,res) => {
+    //======================================
+    // URL's
+    //======================================
+
+    app.get('/approval', async (req,res) => {
         try{
             const admins = await data.Admin.find({admin: false})
             res.render('index.ejs', {admins: admins})
@@ -43,6 +47,20 @@ async function main(){
             console.log(err)
         }
     })
+
+    app.get('/signup', async (req,res) => {
+        try{
+            res.render('register.ejs')
+        }
+
+        catch(err){
+            console.log(err)
+        }
+    })
+
+    //======================================
+    // API Actions
+    //======================================
 
     app.get('/api/parks/all', auth, async (req,res) =>{
         try{
@@ -194,6 +212,7 @@ async function main(){
     app.delete('/api/admin/delete', async (req, res) => {
         try{
             const user = await data.Admin.deleteOne({email: req.body.email})
+            res.status(200).json(`User has been denied admin access and removed from the system`)
         }
 
         catch(err){
