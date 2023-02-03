@@ -28,6 +28,7 @@ async function main(){
     app.set('view engine', 'ejs')
     app.use(express.static('public'))
     app.use(cors())
+    app.use(express.urlencoded({ extended: true }))
 
     //======================================
     // Routes
@@ -130,7 +131,7 @@ async function main(){
             const token = jwt.sign({userID: user._id, email, admin: user.admin}, `${process.env.TOKEN_KEY}`)
             user.token = token
             emailSend({route: 'signup',token,firstName,email})
-            res.status(200).json(user)
+            res.status(200).redirect('/signup')
 
         }
 
