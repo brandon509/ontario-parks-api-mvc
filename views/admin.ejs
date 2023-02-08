@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Admin Dashboard</title>
+    <!-- <link rel="stylesheet" href="../normalize.css"> -->
+    <link rel="stylesheet" href="../styles.css">
+  </head>
+
+  <body>
+    <span id="topBar">
+      <h1>Welcome to the Admin Dashboard!</h1>
+      <button id="logBtn">Log out</button>
+    </span>
+   
+    <h2>Administrator Approvals</h2>
+    <% if(admins.length > 0){ %>
+        <ul>
+            <% for(let i = 0; i<admins.length;i++){ %>
+                <li>
+                    <span class="userName"> <%=`${admins[i].firstName} ${admins[i].lastName}, ${admins[i].email}`%> </span>
+                    <i class="fa-regular fa-square-check"></i>
+                    <i class="fa-solid fa-xmark"></i>
+                </li>
+            <%}%>
+        </ul>
+    <%} else{ %>
+        <p>No admins waiting for approval at this time</p>
+    <%}%>
+
+    <h2>Add an Ontario Park</h2>
+    <form action="/api/parks/new" method="post">
+      <input type="text" name="name" id="name" placeholder="name">
+      <input type="text" name="location" id="location" placeholder="location">
+      <input type="text" name="address" id="address" placeholder="address">
+      <input type="text" name="region" id="region" placeholder="region">
+      <input type="text" name="size" id="size" placeholder="size">
+      <input type="text" name="yearEstablished" id="yearEstablished" placeholder="year established">
+      <input type="text" name="phoneNumber" id="phoneNumber" placeholder="phone number">
+      <input type="submit">
+    </form>
+    <script src="https://kit.fontawesome.com/5b06072905.js" crossorigin="anonymous"></script>
+    <script src="../admin.js"></script>
+  </body>
+</html>

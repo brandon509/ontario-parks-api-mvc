@@ -9,3 +9,16 @@ i{
 h1{
    text-decoration: underline; 
 }
+
+.hidden{
+    display: none;
+}
+
+#topBar{
+    display: flex;
+    justify-content: space-between;
+}
+
+#logBtn, #adminLog{
+    height: 2rem;
+}

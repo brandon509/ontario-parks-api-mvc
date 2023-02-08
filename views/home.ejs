@@ -2,13 +2,16 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>To Do</title>
+    <title>Ontario Parks API</title>
     <!-- <link rel="stylesheet" href="../normalize.css"> -->
     <link rel="stylesheet" href="../styles.css">
   </head>
 
   <body>
-    <h1>Ontario Provincial Parks API</h1>
+    <span id="topBar">
+      <h1>Ontario Provincial Parks API</h1>
+      <button id="adminLog">Admin Logon</button>
+    </span>
     <p>Please complete the below form to access the api. You will receive an email with a unique token for you to use.</p>
     <form action="/api/signup" method="POST">
         <input type="text" placeholder="First Name" name="firstName">
@@ -18,5 +21,6 @@
     </form>
     
     <script src="https://kit.fontawesome.com/5b06072905.js" crossorigin="anonymous"></script>
+    <script src="../home.js"></script>
   </body>
 </html>

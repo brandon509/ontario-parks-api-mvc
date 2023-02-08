@@ -4,6 +4,8 @@ Array.from(accept).forEach(x => x.addEventListener('click', acceptUser))
 const remove = document.querySelectorAll('.fa-xmark')
 Array.from(remove).forEach(x => x.addEventListener('click', removeUser))
 
+document.querySelector('#logBtn').addEventListener('click',logOut)
+
 async function acceptUser(){
     const userEmail = this.parentNode.childNodes[1].innerText.split(',')[1].trim()
     try{
@@ -44,6 +46,16 @@ async function removeUser(){
         console.log(data)
 
         location.reload()
+    }
+
+    catch(err){
+        console.log(err)
+    }
+}
+
+async function logOut(){
+    try{
+        window.location.assign('/')
     }
 
     catch(err){

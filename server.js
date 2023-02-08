@@ -38,22 +38,32 @@ async function main(){
     // URL's
     //======================================
 
-    app.get('/approval', async (req,res) => {
+    app.get('/', async (req,res) => {
         try{
-            const admins = await data.Admin.find({admin: false})
-            res.render('index.ejs', {admins: admins})
+            res.render('home.ejs')
         }
-        
+
         catch(err){
             console.log(err)
         }
     })
 
-    app.get('/signup', async (req,res) => {
+    app.get('/logon', async (req, res) => {
         try{
-            res.render('register.ejs')
+            res.render('logon.ejs')
         }
 
+        catch(err){
+            console.log(err)
+        }
+    })
+
+    app.get('/approval', async (req,res) => {
+        try{
+            const admins = await data.Admin.find({admin: false})
+            res.render('admin.ejs', {admins: admins})
+        }
+        
         catch(err){
             console.log(err)
         }
@@ -131,7 +141,7 @@ async function main(){
             const token = jwt.sign({userID: user._id, email, admin: user.admin}, `${process.env.TOKEN_KEY}`)
             user.token = token
             emailSend({route: 'signup',token,firstName,email})
-            res.status(200).redirect('/signup')
+            res.status(200).redirect('/')
 
         }
 
@@ -181,7 +191,7 @@ async function main(){
             if(user && await bcrypt.compare(password, user.password)){
                 const token = jwt.sign({userID: user._id, email, admin: user.admin}, `${process.env.TOKEN_KEY}`, {expiresIn: '2h'})
                 user.token = token
-                res.status(201).json(user)
+                res.status(201).redirect('/approval')
             }
 
             res.status(401).json('invalid credentials')
@@ -192,6 +202,7 @@ async function main(){
         }
     })
 
+    //should have auth
     app.put('/api/admin/verify', async (req, res) => {
         try{
             let user = await data.Admin.findOne({email: req.body.email})
@@ -210,6 +221,7 @@ async function main(){
         }
     })
 
+    //should have auth
     app.delete('/api/admin/delete', async (req, res) => {
         try{
             const user = await data.Admin.deleteOne({email: req.body.email})
@@ -221,7 +233,8 @@ async function main(){
         }
     })
 
-    app.post('/api/parks/new', auth, async (req,res) => {
+    //should have auth
+    app.post('/api/parks/new', async (req,res) => {
         try{
             const {name, location, address, region, size, yearEstablished, phoneNumber} = req.body
 
@@ -240,7 +253,7 @@ async function main(){
                 phoneNumber 
             })
 
-            res.status(201).json(park)
+            res.status(201).redirect('/approval')
         }
 
         catch(err){
