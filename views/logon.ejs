@@ -3,18 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <title>Logon</title>
-    <!-- <link rel="stylesheet" href="../normalize.css"> -->
-    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="css/styles.css">
   </head>
   <button id="logon">Logon</button>
   <button id="register">Register</button>
-  <form action="/api/login" method="post" id="logonForm">
+  <form action="/login/account" method="post" id="logonForm">
     <input type="text" name="email" placeholder="email">
     <input type="password" name="password" placeholder="password">
     <input type="submit">
   </form>
 
-  <form action="/api/register" method="post" id="registerForm" class="hidden">
+  <form action="/login/register" method="post" id="registerForm" class="hidden">
     <input type="text" name="firstName" placeholder="first name">
     <input type="text" name="lastName" placeholder="last name">
     <input type="text" name="email" placeholder="email">
@@ -25,6 +24,6 @@
   <body>
     
     <script src="https://kit.fontawesome.com/5b06072905.js" crossorigin="anonymous"></script>
-    <script src="../logon.js"></script>
+    <script src="js/logon.js"></script>
   </body>
 </html>

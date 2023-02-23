@@ -9,7 +9,7 @@ document.querySelector('#logBtn').addEventListener('click',logOut)
 async function acceptUser(){
     const userEmail = this.parentNode.childNodes[1].innerText.split(',')[1].trim()
     try{
-        const res = await fetch('/api/admin/verify', {
+        const res = await fetch('/admin/approve', {
             method: 'put',
             headers: {
                 'Content-Type': 'application/json',
@@ -34,7 +34,7 @@ async function removeUser(){
     const userEmail = this.parentNode.childNodes[1].innerText.split(',')[1].trim()
     console.log(userEmail)
     try{
-        const res = await fetch('/api/admin/delete', {
+        const res = await fetch('/admin/delete', {
             method: 'delete',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
