@@ -31,7 +31,7 @@ module.exports = {
     parkName: async (req, res) => {
         try{
             const parkName = req.params.park.toLowerCase()
-            const park = await data.Park.findOne({name: parkName})
+            const park = await Park.findOne({name: parkName})
 
             if(park){
                 res.status(200).json(park)
