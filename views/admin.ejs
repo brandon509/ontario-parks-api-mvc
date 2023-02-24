@@ -17,7 +17,7 @@
         <ul>
             <% for(let i = 0; i<admins.length;i++){ %>
                 <li>
-                    <span class="userName"> <%=`${admins[i].firstName} ${admins[i].lastName}, ${admins[i].email}`%> </span>
+                    <span class="userName" data-id = '<%=admins[i]._id%>'> <%=`${admins[i].firstName} ${admins[i].lastName}, ${admins[i].email}`%> </span>
                     <i class="fa-regular fa-square-check"></i>
                     <i class="fa-solid fa-xmark"></i>
                 </li>

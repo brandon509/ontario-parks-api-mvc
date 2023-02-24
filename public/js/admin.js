@@ -7,7 +7,7 @@ Array.from(remove).forEach(x => x.addEventListener('click', removeUser))
 document.querySelector('#logBtn').addEventListener('click',logOut)
 
 async function acceptUser(){
-    const userEmail = this.parentNode.childNodes[1].innerText.split(',')[1].trim()
+    const userId = this.parentNode.childNodes[1].dataset.id
     try{
         const res = await fetch('/admin/approve', {
             method: 'put',
@@ -15,7 +15,7 @@ async function acceptUser(){
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                email: userEmail
+                id: userId
             })
         })
         
@@ -23,6 +23,7 @@ async function acceptUser(){
         console.log(data)
 
         location.reload()
+        console.log(userId)
     }
 
     catch(err){
@@ -31,14 +32,13 @@ async function acceptUser(){
 }
 
 async function removeUser(){
-    const userEmail = this.parentNode.childNodes[1].innerText.split(',')[1].trim()
-    console.log(userEmail)
+    const userId = this.parentNode.childNodes[1].dataset.id
     try{
         const res = await fetch('/admin/delete', {
             method: 'delete',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
-                email: userEmail
+                id: userId
             })
         })
 
